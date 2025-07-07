@@ -1,0 +1,448 @@
+# Establishing the RFD Process
+
+| Field            | Value                 |
+|:-----------------|:----------------------|
+| RFD Submitter    | Andrew Lilley Brinker |
+| RFD Pull Request | [RFD #0001](https://github.com/CVEProject/cve-schema/blob/main/rfds/0001-establishing-the-rfd-process.md) |
+
+## Summary
+[summary]: #summary
+
+Introduce a Request for Discussion (RFD) process to manage changes to the
+CVE Record Format. The goals of this process are to make proposals clearer and
+easier for the [Quality Working Group][qwg] to assess, to provide a clear focal
+point for community engagement with proposed changes, to increase the rigor of
+the process for evolving the record format, and to provide a historic record of
+prior proposals to help inform future work on the record format.
+
+## Problem Statement
+[problem-statement]: #problem-statement
+
+Today, the process for evolving the CVE Record Format is often informal and
+difficult to track, both as a participant in the CVE
+[Quality Working Group][qwg] and for outside observers.
+
+This is true for several reasons. First, work within the QWG spans both a
+private venue open to CVE Program participants and invited individuals (QWG
+meetings and the QWG mailing list) and a public venue in which anyone may
+comment (the [CVEProject/cve-schema][gh_repo] repository on GitHub). While the
+QWG is generally welcoming to individuals who request admission and aren't [CVE
+Program participants][qwg_members], this requirement to request admission does
+create a barrier to participation that increases the friction of engaging with
+CVE Project stakeholders.
+
+This dual-venue challenge also means that materials for proposals may be spread
+across different venues: they may be shared directly with QWG members privately
+via meetings and the QWG mailing list, or they may be found in Issues,
+Discussions, and Pull Requests on the [cve-schema GitHub repository][gh_repo].
+While _eventually_ all proposals to amend the CVE Record Format must
+materialize as Pull Requests on GitHub, this may procedurally occur after
+de-facto approval via consensus by the QWG or a vote by the
+[CVE Board][cve_board].
+
+When proposals exist only within the QWG, they may be tracked informally in
+ways which make it difficult to follow the status of proposals, both in terms
+of whether they've been advanced by the QWG to the CVE Board for a vote, and
+in terms of whether they've addressed all submitted concerns during the QWG's
+process of deliberation. Given that the QWG is governed by consensus, in the
+style of the [IETF's "lack of disagreement" / humming standard][ietf_humming],
+difficulty tracking the status of open items of disagrement becomes a
+meaningful barrier to progress of items out of the QWG and up to the CVE Board
+for a vote.
+
+What's more, this messiness also makes it difficult to reconstruct a historical
+record of what proposals have been considered, what trade-offs or alternatives
+were part of that consideration, or even what may have motivated a prior
+change. This kind of record of deliberation can be invaluable for future
+efforts to review, reconsider, or expand upon prior decisions.
+
+In summary, the central goal of this proposal to introduce an RFD process is to
+make the process of amending the CVE Record Format more [_legible_][slas], both
+to members of the Quality Working Group and to outside participants.
+
+For QWG members, an RFD proposal can collect open questions which have not yet
+been resolved by consensus, and identify use cases, goals, and other
+considerations underlying proposals. The discussion around an RFD's Pull
+Request can also become a focal point for collecting such feedback in advance
+of actual implementation, helping to centralize any digital discussions and
+thus make the process of participating in the QWG smoother and less
+time-consuming.
+
+For outside participants, an RFD provides a convening place for feedback and
+input which can happen contemporaneously with the QWG's own deliberation. By
+commenting on an RFD, an outside contributor can be sure they are providing
+timely input on a proposal which is still under active consideration, and can
+have a better view into the reasoning which may be behind such a proposal.
+This should help to make the process of gathering and organizing community
+feedback easier on both sides.
+
+Tracking RFDs would also become a way for engaged consumers of CVE records to
+stay informed about upcoming changes before they land in the CVE Services
+[live testing environment][cve_test_env] or are rolled out to production users.
+
+## Proposed Solution
+[proposed-solution]: #proposed-solution
+
+We propose introducing a "Request for Discussion" (RFD) process, modeled after
+similar processes such as:
+
+- [The Oxide Computer Company's RFD process.][rfds_oxide]
+- [The Python PEP process.][pep_python]
+- [The OpenJDK JEP process.][jep_openjdk]
+- [The Rust RFC process.][rfc_rust]
+
+Broadly, an RFD process is a process by which proposals for a project are made
+in the form of detailed documents, which are submitted by an initial submitter,
+workshopped via feedback by project stakeholders, and then eventually accepted
+or rejected. Accepted RFDs are then tracked in a formal tracking system,
+forming a written historic record of proposed and implemented changes for the
+project.
+
+In our case, we propose adopting an RFD process to manage proposals to amend
+the CVE Record Format. The remainder of this section will try to answer key
+questions about this process, including:
+
+- Who can submit an RFD?
+- What should require an RFD?
+- How are RFDs submitted?
+- What process would RFDs follow after submission?
+- What happens to rejected RFDs?
+- What happens to accepted RFDs?
+
+### Who can submit an RFD?
+
+RFDs may be submitted by participants in the [CVE Quality Working Group][qwg].
+
+The QWG is open for participation by [CVE Project participants][qwg_members],
+including:
+
+- Members of the CVE Board
+- Representatives of CVE Numbering Authorities
+- Representatives of Authorized Data Publishers
+- Participants from the CVE Secretariat (currently The MITRE Corporation)
+
+On a case-by-case basis, the QWG can invite to participate, through consensus,
+individuals who are not CVE program members. To request admission to the QWG,
+please contact one of the QWG Co-Chairs.
+
+Individuals wishing to submit an RFD who are not QWG participants should first
+request admittance to participate prior to submitting the RFD, so that they
+can be present for direct synchronous discussions about their proposal. If the
+scheduled time for synchronous QWG meetings is not workable for an RFD
+proposer then alternative QWG meeting times or special briefings to inform the
+QWG members may be discussed and approved by the QWG.
+
+RFDs submitted by individuals who are not QWG participants and have not
+requested participation in the QWG will be responded to with a prompt to
+participate in the QWG. If the submitter does not respond in a timely manner or
+declines to engage with the QWG, then the RFD will be closed and rejected,
+though the rejection will not preclude future consideration of the merits of
+the contents of the RFD if proposed at a future time consistent with the
+requirements of the RFD process.
+
+### What Should Require an RFD?
+
+Changes to the CVE Record Format of the following types will require an
+approved RFD prior to implementation:
+
+1. Adding, modifying, or removing fields
+2. Adding, modifying, or removing data constraints
+
+Changes to the format that do not do either of the above do not require an
+RFD, although RFDs could still be submitted to aid in discussion and tracking
+of a proposal. Other kinds of changes might include updating or adding
+descriptions to fields, or adding or modifying field examples.
+
+In general, if you are in doubt about whether a proposal should start with an
+RFD, ask the Quality Working Group.
+
+### How are RFDs submitted?
+
+RFDs should be submitted as Pull Requests against the [CVEProject/cve-schema
+Git repository on GitHub][gh_repo], made against the
+[`develop`][gh_repo_develop] branch. The precise steps for submitting a new
+RFD are:
+
+- [Fork the CVEProject/cve-schema repository][gh_forking] to your own user
+  account.
+- [Create a new branch for your RFD proposal][gh_branching], branching off of
+  the `develop` branch from CVEProject/cve-schema.
+- In this new branch, copy the file `rfds/_TEMPLATE.md` from the root of your
+  checked out copy of your fork of CVEProject/cve-schema to a new file of the
+  form `rfds/0000-<TITLE>.md`, replacing `<TITLE>` with an [ASCII][ascii] title
+  for the RFD, with words separated by dashes.
+- Complete the template as described within that copied document. The text in
+  each section of the template describes the substance of the material that
+  should be in that section.
+- [Commit the changes][gh_commit] with a descriptive commit message describing
+  the proposal.
+- [Open a pull request][gh_pr] from your feature branch to the `develop` branch on the
+  CVEProject/cve-schema repository.
+- After the pull request is open, amend the RFD proposal file to link to that
+  Pull Request. Leave the RFD number as `0000`. Commit and push that
+  modification to the RFD file. If the RFD is accepted, the RFD number will be
+  modified by a QWG Co-Chair to take the next available integer ID for an RFD.
+
+### What process would RFDs follow after submission?
+
+The Quality Working Group operates by [consensus][ietf_humming], with
+discussions taking place during QWG meetings. Submitted RFDs may be placed on
+the agenda for discussion at future QWG meetings, and may remain as part of the
+ongoing agenda of the QWG until a determination is reached to either advance
+the proposal to the CVE Board for a final approval or rejection, or to not
+advance the proposal.
+
+Additionally, both QWG members and outside stakeholders should voice open
+questions or points of disagreement in the pull request for the RFD. These open
+points should be tracked in a comment maintained by a QWG Co-Chair or by the
+RFD submitter. The presence of tracked unresolved points of disagreement should
+be treated as a blocker for the QWG to proceed with advancing an RFD to the
+CVE Board.
+
+Final approval of all proposals for the CVE Record Format must be done by the
+CVE Board. While the QWG has the power to refuse to advance a proposal to the
+Board if they do not consider it worthwhile to pursue, the Board makes the
+decision to approve or reject a proposal after the QWG advances it to them.
+
+When the CVE Board votes on a proposal advanced by the QWG, the results of that
+vote shall be added to the discussion on the relevant RFD Pull Request by a
+QWG Co-Chair.
+
+There is no set schedule by which an RFD must be considered, either by the QWG
+or by the CVE Board, nor is there a set schedule for QWG meetings. The specific
+schedule for QWG may vary at the discretion of the QWG Co-Chairs. Contact the
+Co-Chairs for information on the current QWG meeting schedule.
+
+If an RFD remains unresolved and inactive for a period of 3 months (inactive
+meaning no new points of discussion have been raised on the RFD's pull request
+and the RFD has not been part of the agenda for meetings of the QWG or the
+CVE Board), it may be closed by a QWG Co-Chair as a rejection. In which case it
+may be resubmitted in the future as is the case with all rejections.
+
+If the QWG makes a determination to advance an RFD to the CVE Board, a Co-Chair
+must make a comment on the RFD Pull Request indicating it has been advanced to
+the Board. If the Board votes on the RFD, the results of that vote must be
+recorded to the RFD Pull Request by a QWG Co-Chair.
+
+### What happens to rejected RFDs?
+
+Rejected RFDs will have their Pull Requests closed, with a final comment from
+a representative of the QWG (usually a QWG Chair) indicating the disposition
+of the group and optionally providing feedback on the proposal.
+
+Rejected RFDs may be re-proposed in the future, with a new RFD document, if
+they address issues raised in a prior submission sufficiently well. RFDs which
+are re-proposals should refer to and link to the Pull Request for the prior
+instance of the RFD to provide a clear historic record.
+
+### What happens to accepted RFDs?
+
+Accepted RFDs, meaning RFDs which have been advanced to the CVE Board by the
+QWG and which the CVE Board has voted to approve, will be merged into the
+[CVEProject/cve-schema][gh_repo] repository via the following procedure.
+
+Upon acceptance of an RFD, a QWG Co-Chair will add a commit to the RFD's
+Pull Request branch, updating the RFD document's RFD number in both the
+filename prefix and within the header text of the RFD itself to use the
+next-available integer ID. For example, if the most-recently-merged RFD had
+the number #0003, the next RFD to be merged would use the ID #0004.
+
+After this commit is added, the Pull Request for the RFD will be merged by a
+QWG Co-Chair, and a Tracking Issue will then be opened on the repository to
+track progress on implementing the changes proposed in the RFD. The changes,
+as they've in-principle been approved by the CVE Board as part of the process
+of approving the RFD, will not need to be re-reviewed by the Board.
+
+When all implementation of the RFD is complete and has been merged, the
+Tracking Issue will be closed and the changes proposed by the RFD and now
+implemented subsequent to its merging will become part of the next release of
+the CVE Record Format.
+
+If an RFD fails to pass its own self-defined success criteria within the
+defined period, the changes described by the RFD will be rolled back. The
+timeline for rollbacks will be coordinated between the QWG, the CVE Board, and
+the AWG. Rollbacks do not require a new vote of the CVE Board or a re-review
+by the QWG, except to coordinate the logistics of enacting a rollback and
+communicating about it to CVE stakeholders.
+
+## Examples
+[examples]: #examples
+
+This document itself, as the first RFD, is an example of the format of an RFD,
+and of the process an RFD should follow for acceptance.
+
+As this RFD does not propose changes to the schema, this section does not
+include any such example changes. In any RFD which does propose changes to the
+CVE Record Format, examples should be provided in the "Examples" section, as
+described in the RFD template.
+
+## Impact Assessment
+[impact-assessment]: #impact-assessment
+
+The introduction of an RFD process comes with both benefits and costs.
+
+In terms of benefits, it helps to make the process of proposing and considering
+changes to the CVE Record Format more rigorous, consistent, and transparent.
+Members of the QWG can more easily track what proposals are currently open, and
+what proposals have been approved but not yet implemented. For non-QWG
+participants in the process, it becomes easier to identify when changes are
+being discussed and to provide your independent perspective through engagement
+in an RFD's Pull Request.
+
+RFD's also help to provide a historical record of prior accepted proposals,
+including motivation and reasoning behind a proposal. This helps avoid future
+"Chesterton's Fence" issues where no one involved in the QWG or the community
+was present for the discussions around the introduction of a change in the
+Record Format, and thus is unable to assess why such a change had been made.
+
+The inclusion of success metrics and a rollback mechanism within the RFD
+process should also help to avoid situations where changes are made to the
+format which turn out to be unnecessary and are not widely adopted by the
+CVE ecosystem. Rather than new unused features becoming dead weight in the
+specification, there can be a well-understood process for their removal.
+
+In terms of costs, the introduction of an RFD process makes proposing changes
+to the CVE Record Format more time-consuming. Proposers now need to produce a
+detailed written document capturing their proposal and the evidence for it
+being worthwhile, which may be a barrier to new proposals. In practice this
+may still be comparable to the current more ad-hoc process which often involves
+the production of presentation slides, written documents, and code changes
+which are submitted and shared across QWG meetings and public Pull Requests.
+
+RFDs also do not resolve dysfunction regarding divergence of values or goals
+among the QWG or between CVE and its stakeholders. As the QWG operates by
+consensus, an inability to reach consensus can, despite the RFD process, still
+result in deadlock and an inability to proceed in making changes.
+
+## Compatibility and Migration
+[compatibility-and-migration]: #compatibility-and-migration
+
+There are no compatibility or migration concerns for this RFD, as it concerns
+the establishment of the RFD process itself, and does not contain any proposals
+for amending the CVE Record Format.
+
+## Success Metrics
+[success-metrics]: #success-metrics
+
+6 months after the acceptance and adoption of this RFD process, the QWG should
+solicit a survey to QWG members and outside CVE stakeholders about the value
+of the RFD process. The results of that survey will be scored and compared
+against a threshold, and if the average results of the survey do not pass the
+required minimum threshold to indicate worthwhile value from the process, then
+the RFD process will be rolled back and will not be required for future
+proposals.
+
+To limit the possibility of "gaming" the survey by choosing questions
+after-the-fact which may unduly influence the outcome of the survey, the
+questions to be used are included in this RFD proposal, and shall not be
+changed when the survey is held.
+
+The initial questions on the survey will be used to determine whether answers
+will be considered for scoring. Anyone who answers "false" to both of the
+following questions will not have their answers considered for the purpose of
+scoring the survey results to determine whether the RFD has succeeded at its
+success metric:
+
+1. "I am a participant in the CVE Quality Working Group (have attended at least
+   one CVE QWG meeting in the past six months)"
+2. "I am a CVE ecosystem stakeholder (have consumed CVE records in the past six
+   months)"
+
+All other question answers are given on a 5-level Likert scale, with each
+answer being assigned a point value, as follows:
+
+- Strongly disagree (1 point)
+- Disagree (2 points)
+- Neither agree nor disagree (3 points)
+- Agree (4 points)
+- Strongly agree (5 points)
+
+The questions will be:
+
+3. "The CVE QWG's RFD process has made tracking the status of proposals to
+   amend the CVE Record Format easier."
+4. "The CVE QWG's RFD process has improved the level of rigor applied to
+   proposals to amend the CVE Record Format."
+5. "The CVE QWG's RFD process has made it easier to gather input on proposals
+   to amend the CVE record format from QWG members."
+6. "The CVE QWG's RFD process has made it easier to gather input on proposals
+   to amend the CVE Record Format from outside stakeholders."
+
+To score the results, consider only answers from respondents who answered
+"true" to at least one of the two qualification questions (questions 1 and 2).
+Then add up the scores for all Likert scale questions from all qualifying
+respondents. Add up the total scores for all qualifying respondents, and divide
+them by the number of qualifying respondents.
+
+If the average total score is greater than 12, the success criteria has been
+met, and the RFD will not be rolled back.
+
+If the average total score is less than or equal to 12, the success criteria
+has not been met, and the RFD will be rolled back.
+
+12 is chosen as the threshold as it would be the total score for an all-neutral
+set of responses from a single respondent.
+
+## Supporting Data or Research
+[supporting-data-or-research]: #supporting-data-or-research
+
+RFD processes are well-attested within software communities. Some existing
+RFD-equivalent processes are identified in the "Proposed Solution" section
+above, and this is not an exhaustive list of such processes.
+
+In general, RFD processes are desirable in large, multi-stakeholder projects
+where the threshold for enacting changes ought to be high because the impact
+of any changes is broad, and where there is a broad set of stakeholders who
+need to coordinate and be involved in deliberation around changes.
+
+The demand for this process comes from the QWG itself. QWG members have
+expressed concern with a lack of rigor in the QWG's process for considering
+proposals, including challenges with tracking the state of proposals, recording
+evidence and success metrics, recalling key arguments for or against proposals,
+and otherwise tracking and following the status of discussions around a
+proposal.
+
+## Related Issues or Proposals
+[related-issues-or-proposals]: #related-issues-or-proposals
+
+There are currently no alternative proposals open with the QWG to amend the
+process of considering changes to the CVE Record Format.
+
+Alternate processes might be considered, but we do not present alternative
+procedural designs here.
+
+## Recommended Priority
+[recommended-priority]: #recommended-priority
+
+Medium
+
+## Unresolved Questions
+[unresolved-questions]: #unresolved-questions
+
+None currently.
+
+## Future Possibilities
+[future-possibilities]: #future-possibilities
+
+Future amendments to the RFD process itself may be warranted, or other
+procedural changes to how the QWG operates. For example, clearer membership
+rules and procedures, or a transition from a consensus to a voting-based
+process for making recommendations to the CVE Board.
+
+[ascii]: https://developer.mozilla.org/en-US/docs/Glossary/ASCII
+[cve_board]: https://www.cve.org/ProgramOrganization/Board
+[cve_test_env]: https://www.cve.org/allresources/cveservices#TestEnvironment
+[gh_branching]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository
+[gh_commit]: https://github.com/git-guides/git-commit
+[gh_forking]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo
+[gh_pr]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request
+[gh_repo]: https://github.com/CVEProject/cve-schema
+[gh_repo_develop]: https://github.com/CVEProject/cve-schema/tree/develop
+[ietf_humming]: https://datatracker.ietf.org/doc/html/rfc7282
+[jep_openjdk]: https://openjdk.org/jeps/1
+[qwg]: https://github.com/CVEProject/quality-workgroup
+[qwg_members]: https://github.com/CVEProject/quality-workgroup?tab=readme-ov-file#2-working-group-membership
+[pep_python]: https://peps.python.org/pep-0001/
+[rfc_rust]: https://github.com/rust-lang/rfcs/blob/master/text/0002-rfc-process.md
+[rfds_oxide]: https://rfd.shared.oxide.computer/rfd/0001
+[slas]: https://en.wikipedia.org/wiki/Seeing_Like_a_State

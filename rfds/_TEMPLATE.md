@@ -1,0 +1,184 @@
+# (Title)
+
+| Field            | Value  |
+|:-----------------|:-------|
+| RFD Submitter    | (NAME) |
+| RFD Pull Request | [RFD #0000](https://github.com/CVEProject/cve-schema/pull/1234) |
+
+## Summary
+[summary]: #summary
+
+One paragraph explanation of the proposed schema change.
+
+## Problem Statement
+[problem-statement]: #problem-statement
+
+Explain the motivation for the proposed change to the CVE Record Format,
+including what problems it may solve for users of CVE, or what additional
+capability it may provide. This should explain all necessary background in
+detail, so it is understandable to someone without prior knowledge or
+experience with the relevant problems. It should also make clear the severity
+of the problem being described.
+
+The problem statement should describe who is affected by the problem, with
+specific use cases where the proposed change would help users of CVE, whether
+those users are CVE Numbering Authorities or Authorized Data Publishers
+submitting data to CVE Services, or consumers of CVE data to forward to their
+own customers or to manage their own security risks.
+
+This section should explicitly answer the question: "what happens if we do
+nothing?"
+
+## Proposed Solution
+[proposed-solution]: #proposed-solution
+
+Explain in detail the proposed change to the CVE Record Format, including
+why those changes are made and how they will address the problems or provide
+the capabilities described in the Problem Statement. This should be very
+detailed, so as to make clear to reviewers exactly what is necessary to
+implement the RFD if it is accepted. RFD proposal time is the time to identify
+and resolve ambiguities and uncertainties in the actual schema changes
+required for a proposal, as they provide the clearest opportunity for the
+QWG members and community stakeholders to review and provide input on proposed
+changes.
+
+If a change is to implemented in multiple parts or stages, those should be
+delineated separately in the RFD document, to make clear what process would be
+followed if it is accepted.
+
+## Examples
+[examples]: #examples
+
+Provide examples of the relevant new or modified fields in the record format.
+If an RFD is only proposing eliminating or deprecating existing fields,
+examples should show what the relevant container objects would like after the
+change, and how the reduced schema would continue to serve the needs and
+interests of CVE users.
+
+Diagrams may also be included here to visualize the change in structure
+proposed by an RFD.
+
+## Impact Assessment
+[impact-assessment]: #impact-assessment
+
+Describe the benefits and possible risks associated with an RFD, including
+the weaknening or strengthening of data quality constraints and any
+requirements to enforce data quality rules via CVE Services application logic
+(when not enforceable in the schema itself) or to communicate constraints or
+expectations to CVE stakeholders.
+
+## Compatibility and Migration
+[compatibility-and-migration]: #compatibility-and-migration
+
+Describe the impacts of the proposed change on both backward and forward
+compatibility.
+
+To address backward compatibility, explain if and how your proposal would
+impact users of the schema's ability to parse existing CVE records produced
+under prior versions of the CVE Record Format. Note that CVE records returned
+by CVE Services are automatically updated to use new schema versions, so
+interaction with historic CVE records would only arise for records stored and
+obtained outside of CVE Services.
+
+To address forward compatibility, explain if current users of the schema would
+be able to parse all, some, or none of the records produced with the schema as
+modified by your proposal. If CVE consumers would need to amend their existing
+parsers for CVE records to be able to parse records produced under the new schema,
+describe what amendments would be necessary for them.
+
+These explanations must specifically answer the following questions:
+
+1. Does your proposal modify an `enum` type to add, remove, or modify the set
+   of acceptable values?
+2. Does your proposal modify a closed set of required fields to add a new
+   required field or a new alternative set of required fields?
+3. Does your proposal involve the addition of a new format which CVE consumers
+   would need to parse? If it does include a new format...
+   1. How complex is the format to parse?
+   2. Are there parser implementations available under open source licenses,
+      and for what programming languages?
+
+You must also address considerations for planning migration of CVE stakeholders
+to support your proposed changes. This includes both the impacts to CVE
+producers, including CVE Numbering Authorities (CNAs) and Authorized Data
+Publishers (ADPs), and impacts to CVE consumers.
+
+Considerations for migration, which must be addressed in your explanation,
+include:
+
+1. How long should the proposed change be communicated to CVE stakeholders
+   before being implemented in production?
+2. What testing would be needed before the change is implemented in production?
+
+As CVE is a large and multi-stakeholder system, detail and sensitivity in this
+section of an RFD are extremely important. Particular scrutiny should be paid
+by both RFD submitters and reviewers to understand the impacts of any proposed
+change on all sides of the CVE system, including producers (CNAs, ADPs),
+consumers, the CVE Board and Working Groups, and the Secretariat.
+
+## Success Metrics
+[success-metrics]: #success-metrics
+
+Describe how success for an RFD will be determined, including expectations for
+adoption of any new fields by CNAs or ADPs over a defined timeline. Also
+describe any available options to assess adoption of new fields by CVE data
+consumers, which may require engagement with known CVE consumer communities.
+
+Success metrics must include:
+
+- A fixed timeline for deciding success or failure.
+- An unambiguous mechanism for determining success or failure.
+- If the metric will involve qualitative assessment of success with CVE
+  stakeholders, for example via a survey or direct outreach, all questions for
+  this engagement must be pre-registered in the RFD.
+
+Describe a path to rollback RFD changes if the success metrics are not met
+in the prescribed time.
+
+## Supporting Data or Research
+[supporting-data-or-research]: #supporting-data-or-research
+
+Describe any evidence for the need to adopt the RFD proposal based on
+community demand for specific new data or demand for better data quality.
+
+## Related Issues or Proposals
+[related-issues-or-proposals]: #related-issues-or-proposals
+
+Identify other open proposals and alternative options which may be considered
+by the QWG if the RFD is not deemed acceptable. Link to other proposals if
+appropriate.
+
+## Recommended Priority
+[recommended-priority]: #recommended-priority
+
+Identify a recommended priority for the proposal based on the RFD author's
+assessment of the proposal's value and ecosystem demand.
+
+Possible values are:
+
+- __Low__: The RFD addresses minor inconsistencies or errors in the CVE Record
+  Format which ought to be fixed but which do not present a substantive problem
+  for CVE consumers.
+- __Medium__: The RFD addresses a deficiency in the CVE Record Format which
+  limits the value CVE consumers get from CVE records.
+- __High__: The RFD addresses a severe deficiency in the CVE Record Format
+  which is interfering with the ability of CVE consumers to manage risks from
+  vulnerabilities.
+
+## Unresolved Questions
+[unresolved-questions]: #unresolved-questions
+
+Identify any unresolved questions related to the RFD. Ideally, all questions
+listed in this section will be resolved during consideration of the RFD.
+Questions which are deemed out of scope for an RFD should be moved to the
+Future Possibilities section to make clear they remain open and can be the
+subject of a future RFD.
+
+## Future Possibilities
+[future-possibilities]: #future-possibilities
+
+Describe future extensions of the changes proposed in the RFD, including any
+unresolved questions which the QWG may wish to resolve at a future date. If
+an RFD is part of a larger strategy, identify the remaining steps in that
+strategy to help contextualize the work of the RFD within the goals and values
+of the QWG.

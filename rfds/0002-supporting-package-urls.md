@@ -1,0 +1,404 @@
+# Supporting Package URLs in CVE
+
+| Field            | Value  |
+|:-----------------|:-------|
+| RFD Submitter    | Andrew Lilley Brinker |
+| RFD Pull Request | [RFD #2](https://github.com/CVEProject/cve-schema/pull/407) |
+
+## Summary
+[summary]: #summary
+
+Today, CVE records support identifying affected products and packages via an
+`affected` array, the objects within which contain both "identifier-like" and
+"version-like" fields. The "identifier-like" fields are used to indicate
+specific software, while the version like fields set either a blanket status
+for all instances of that software, or set specific statuses for defined
+version ranges. The "identifier-like" fields are in two forms: a `vendor` and
+`product` together, or a `collectionURL` and `packageName` together.
+
+These `affected` product entries may also include a list of `cpes`, meaning
+Common Platform Enumeration (CPE) identifiers. In 2024, recognizing limitations
+of this `cpes` array within the context of the `affected` array and wanting to
+aid the enrichment of CVE records with CPE data in a familiar format, the
+CVE project adopted an additional `cpeApplicability` structure, separate from
+the `affected` array.
+
+Together these two structures, the `affected` array and the `cpeApplicability`
+object, allow CVE consumers to determine the applicability of a CVE by
+comparing them against software identifiers associated with software they use.
+
+While these structures are valuable to CVE consumers, they also face
+limitations. CPEs are not used universally across software ecosystems, with
+limited coverage of open source software (OSS) projects in particular. While
+CPEs are well suited for identifying software produced by commercial entities,
+the central nature of the CPE Dictionary faces scaling challenges dealing with
+the large and ever-growing scope of open source software distributed across
+disprarate package hosts.
+
+This proposal describes CVE record format changes to amend CVE’s `affected`
+array to support the use of an additional software identifier format, Package
+URLs, via addition of new optional fields for objects within the `affected`
+array.
+
+While the proposal only includes support for the CPE and Package URLs formats,
+their inclusion provides a template for the potential addition of other software
+identification formats, should that be seen as useful by the CVE user community
+and Board.
+
+All changes described here are backwards-compatible with the CVE record format
+as it exists today. Under the SchemaVer versioning scheme adopted by CVE for
+the record format, these changes are ADDITION-level changes, which are
+compatible with all historic CVE data.
+
+## Problem Statement
+[problem-statement]: #problem-statement
+
+While the `affected` array's "identifier-like" fields, the `cpes` array, and
+the `cpeApplicability` structure provide mechanisms to express applicability
+for many key vendors, they are also not the whole answer to the challenge of
+matching vulnerabilities to affected systems.
+
+For CPE, the key challenges are its reliance on a central dictionary and the
+processes used to update that dictionary. NIST, the United States' National
+Institute of Standards of Technology, stewards the CPE specification and
+maintains the CPE Dictionary, which is the central registry of defined terms
+which may be used to identify vendors, products, and more within a CPE
+identifier. The reliance on this central dictionary means that the issuance of
+new CPEs for vendors or products not present in the dictionary requires NIST
+to update the dictionary to support them. While anyone can request the creation
+of a CPE from NIST, NIST may at times be slow to respond to these requests due
+to resource limitations.
+
+Mechanical applicability determinations—especially searches of CVE data based
+on software identifiers—are compromised if the searcher cannot rely on the
+identifiers to be available when and where they are needed.
+
+Moreover, some vulnerability conditions cannot be expressed adequately using
+CPE. For example, sometimes a vulnerability is only present when certain
+modules or files are present, but CPEs do not capture software at the module or
+file level. To put it another way, CPE is a relatively coarse-grained software
+identifier, identifying software “products,” potentially constrained with
+version information, but not components or materials within those software
+products. While the `affected` array provides fields to constrain applicability
+at a greater level of granularity, the `cpeApplicability` object does not, and
+there is substantial ambiguity in interpreting the `cpes` field within the
+`affected` array's product objects, which was part of the motivation for the
+introduction of the `cpeApplicability` structure.
+
+CPEs are also not used universally across different software ecosystems. Open
+source software projects are generally less well represented in the
+NIST-maintained CPE dictionary than closed source software. This means sole
+reliance on CPE as the mechanism for identifying software within the CVE record
+format leaves CVE less able to identify open source software affected by a
+vulnerability.
+
+As for the `affected` array's "identifier-like" fields, there are two variants
+to assess. First, a `vendor` and `product` pair; second, a `collectionURL` and
+`packageName`.
+
+For the `vendor` and `product` pair, they are potentially useful for human
+interpreters, but are of limited value for automated applicability matching.
+They express similar information to what is found within a CPE, but because
+they are not constrained to use well-known terms defined within a central
+dictionary, there is substantial risk of divergence, where the terms used by
+a CNA to identify the vendor or product may not match the terms used by
+downstream consumers to search for or match against records to determine
+applicability.
+
+For the `collectionURL` and `packageName` pair, these function similarly to a
+Package URL, but again lack a well-defined construction to ensure consistency
+and easy automated cross-referencing between datasets. The `collectionURL`
+field provides many example, but is not constrained beyond requiring a valid
+URI. The `packageName` field is entirely unconstrained. Similarly to the first
+option for identifying affected products, they are most useful for human
+matching of CVE records, but not for automated processing of applicability at
+scale.
+
+## Proposed Solution
+[proposed-solution]: #proposed-solution
+
+Expanding the set of software identifiers that are available for use in
+expressing software applicability statements gives additional tools to parties
+writing and enriching CVE records to better identify the software impacted by a
+vulnerability. In particular, Package URLs are widely used today by open source
+software communities and are better suited than CPEs for capturing distinctions
+between different distributions of particular open source software.
+
+Expanding the set of identifier types within the `affected` array to include
+Package URLs will result in an expansion of coverage and of the expressiveness
+of CVE's applicability data.
+
+The specific schema edit is as follows:
+
+### Add a field for Package URLs within the `affected` product object
+
+This adds a field to the `product` object, which is the object contained
+within the `affected` array, called `packageURL`. This field is constrained
+within the JSON schema to accept a valid URI, and would be further constrained
+by CVE Services (the actual API used for submitting CVE data by CNAs and ADPs)
+to ensure those URIs are valid Package URLs.
+
+This validation of Package URLs would not be done within the CVE Record Format
+itself due to limitations of the syntactic validation facilities of JSON Schemas
+and the complexity of the syntax for Package URLs. The Package URL specification
+encodes a variety of naming constraints taken from the registered package hosts,
+to ensure that packages identified within a Package URL have names which are
+considered valid within their chosen package ecosystem. Encoding this wealth
+of constraints within a Regular Expression in the CVE Record Format itself
+would be excessive and difficult to maintain as new package types are added to
+the Package URL specification in the future.
+
+Additionally, Package URLs added via this new field will __not__ be allowed to
+include versions. All version information should only be included within the
+existing `versions` field of the `product` object.
+
+This field will be an optional new field on the `product` object, and so would
+still need to be used in conjunction with one of the existing sets of
+"identifier-like" fields: `vendor` and `product` and/or `collectionURL` and
+`packageName`.
+
+### Use of this as a template for future identifiers
+
+This proposal is intended as a template for the introduction of more types of
+identifiers in the future. Specifically, future identifiers should be added
+as fields within the `affected` array's `product` object, made into options
+for the identifier-like field requirement currently applied to `vendor` and
+`product` or `collectionURL` and `packageName`, and have additional constraints
+added as appropriate to ensure `product` objects can't be made with nonsensical
+field combinations.
+
+Additionally, if an identifier may optionally embed version information, that
+version inclusion should be disallowed within the CVE Record Format. This is
+to ensure that version information within the affected array, if present, is
+_only_ ever found within the `versions` field. This keeps discovery and handling
+of versions for CVE consumers simple and consistent.
+
+### Vendoring of the relevant specifications
+
+To ensure consistency about new identifier types added, the CVE project
+should "vendor," meaning maintain its own public copy of, the relevant
+specifications for Package URLs. The Package URL specification is currently
+un-versioned and actively developed on GitHub. While the specification is
+undergoing standardization with ECMA, a standards organization, that work is
+ongoing and has not yet produced a stable, versioned instance of the Package
+URL specification. Vendoring a specific reference-able version of the
+Package URL specification will help ensure clarity about what "Package URL"
+means in the context of a CVE record.
+
+## Examples
+[examples]: #examples
+
+The following are examples of hypothetical CVE records with these new
+identifier fields, presented as fragments showing only the `affected` array,
+for concision.
+
+```json
+"affected": [
+    {
+        "collectionURL": "https://www.npmjs.com/package/fictional-package",
+        "packageName": "fictional-package",
+        "packageURL": "pkg:npm/fictional-package",
+        "programFiles": ["util.js"],
+        "versions": [
+            {
+                "version": "6.3.1",
+                "status": "affected"
+            }
+        ]
+    }
+]
+```
+
+## Impact Assessment
+[impact-assessment]: #impact-assessment
+
+The proposal retains the existing CPE-centric applicability structure so as to
+be completely backwards compatible. At some point in the future, it may be
+worth converting existing CPE-specific applicability expressions to use the
+format-neutral applicability expression structure – this should be trivial to
+accomplish. However, in the near-term, the goal is full backwards
+compatibility.
+
+The primary immediate impact would be for parties seeking to express
+applicability statements for package-managed software. These parties would be
+able to start using purls in applicability statements, which should be readily
+available based on the package management system’s data. They will be able to
+express applicability without needing to find or request a relevant CPE.
+
+The most significant concern that comes with supporting multiple software
+identifier formats in CVE is the fact that it leads to the creation of
+synonyms. This happens when a single application is associated with multiple
+different software identifiers. This can happen when a single software
+application has an identifier in both purl and CPE. It can also happen in purl
+if are package-specific identifiers for an issue that is not package-specific.
+(E.g., a vulnerability exists in the base software, but because purls are
+package specific, they refer to the Debian, RPM, etc. distributions of that
+base software.) This can result in false-negative results is there is a
+mismatch between how software is identified in the CVE vs. how it is identified
+in a query. For example, if the party authoring the CVE record uses purl to
+express applicability, an attempt to compute applicability using a CPE will
+fail, potentially resulting in a false-negative matching result.
+
+Since the primary intent of adding support for new identifier formats is to
+cover gaps in CPE’s coverage, and because, when known, the new structure allows
+multiple synonyms for a single software application to be captured, it remains
+to be seen whether incomplete capture of synonyms occurs frequently enough to
+cause problems. However, this issue will need to be monitored carefully since
+frequent occurrences of incomplete synonym lists in CVE could negatively impact
+the reliability of applicability evaluations. In the meantime, new conventions
+have been identified to make it clearer when a CVE record author is capturing
+synonyms for a given piece of software vs. noting multiple pieces of software
+impacted by the same vulnerability. These conventions will need to be followed
+across all parties that create and enrich CVE records.
+
+## Compatibility and Migration
+[compatibility-and-migration]: #compatibility-and-migration
+
+This would be an `ADDITION`-level change.
+
+As noted above, the proposal is completely backwards compatible since it
+retains the existing, CPE-centric applicability structures. Should measures of
+the value of the new structures affirm its utility, it is likely worth
+migrating all CPE-specific applicability statements to use the new
+format-agnostic applicability statements and removing the CPE-specific
+applicability structures from the CVE schema. Since the CPE-specific and
+format-agnostic structures largely mirror each other, converting existing CVE
+content to the new record format should be straightforward using simple
+automation.
+
+Updating the infrastructure that parties use to consume CVE records to support
+the new applicability format will likely take some time, but, again, the
+similarity to the existing CPE-specific structure should make the process
+relatively uncomplicated. Any conversion of the CVE corpus to exclusively use
+the format-agnostic structure would only occur after CVE-consuming tools had
+fully adopted those format-agnostic structures, and thus any eventual
+conversion of the CVE corpus to use the new structures should have no impact on
+CVE consumers.
+
+## Success Metrics
+[success-metrics]: #success-metrics
+
+Validation of the new structures should be straightforward as they are captured
+in a proposed JSON schema update. Adoption of new conventions to more clearly
+manage synonyms will require additional steps since those conventions go beyond
+what can be expressed in a JSON schema. Any tools used to generate CVE records
+should be able to guide creators and highlight conditions where the given
+structure is or is-not indicative of a synonym, but tools will be unable to
+strictly enforce compliance with these conventions and it will be left to CVE
+record creators and enrichers to correctly note synonyms where they occur.
+
+The success of this proposal will depend on the adoption of the new format,
+Package URLs. There are two key measures of adoption: the degree to which these
+new identifiers are added to CVE records when they are created and/or when they
+are enriched, and the degree to which the new formats are used by CVE consumers
+to determine applicability.
+
+The degree to which new identifier types appear in CVE records will be
+relatively easy to measure as this can be computed using the CVE corpus. It
+should be emphasized that comparisons of counts between CPE use and the use of
+the other formats is unlikely to be useful since the formats serve different
+needs. A better measure would be to determine whether each new format achieves
+some critical mass of adoption. An initial suggestion for measures would be,
+after a 6 month period, to look for approximately 5% of new CVEs having an
+associated purl within 3 months of CVE creation. CVE may consider making
+inclusion of software identifiers, including CPE or Package URLs a requirement
+for CNA vulnrichment recognition with the Enrichment Recognition List.
+
+Measuring use by CVE consumers is a significantly larger challenge - the CVE
+community does not currently have good measures of how often CPEs are used by
+CVE consumers. A potential path would be to interview vulnerability management
+tool vendors and SBOM management tool vendors, since many of these ingest and
+process the CVE list, or the NVD list from which CVE’s support for CPE was
+copied. Enquiring as to the role (any) software identifiers play in their
+processes would provide a strong indication of the value these identifiers
+provide. Of course, it will take vendors some time to adjust their processes.
+As such, the measure might be to look for at least two vendors using the new
+software identifier formats within a year of the adoption of the new formats.
+
+Adoption of a new format below a critical mass represents a problem since it
+means that some number of CVE records include identifiers that are used
+infrequently enough that the given identifier format is unlikely to provide
+meaningful results. For example, if only a fraction of a percent of CVEs get
+labeled with purls, then those purls might not be seen as needing CPEs, but
+users might not feel purls were reliable enough to use due to their limited
+coverage. If this happens, then the best way to back out the change would be to
+create CPEs to replace the limited use of purls (which, if purl use is truly
+limited, should not represent a significant lift) and then prohibit purls in
+future CVEs.
+
+## Supporting Data or Research
+[supporting-data-or-research]: #supporting-data-or-research
+
+The widespread use of purls within the open source community is well
+documented. Similarly, the OSV vulnerability database has been using purls in
+is software applicability expressions for years. Thus it seems probable that
+purls will help simplify the creation of applicability expressions for the
+open-source community.
+
+While the authors have no hard data on the impacts of using purls for capturing
+software applicability to vulnerabilities, adoption of these new formats in CVE
+will be measured using the aforementioned metrics. Should adoption be
+insufficient to provide a benefit, the changes can be rolled back relatively
+easily to avoid any potential downsides associated with this proposal.
+
+## Related Issues or Proposals
+[related-issues-or-proposals]: #related-issues-or-proposals
+
+The gap in CPE’s coverage of software is a significant problem for its use in
+expressing CVE applicability. One alternative would be to more heavily invest
+in CPE creation to try to better close this coverage gap. In theory,
+accelerating and expanding CPE creation would allow it to subsume the coverage
+boost purl would provide. In practice, however, this seems highly unlikely.
+For over a decade, NIST has tried to manage CPEs to keep pace with the needs of
+CVE. However, the challenge and expense has proven to be significant and NIST
+has expressed a desire to end its role as the provider of CPEs for CVEs.
+Without a massive investment, it is unlikely that any party could produce CPEs
+quickly enough to meet CVE’s needs. Moreover, even a complete CPE library would
+not address CPE’s inability to capture vulnerabilities that depend on files or
+modules, since those are beyond CPE’s ability to capture.
+
+Another alternative might be to completely replace CPE with another standard.
+However, doing so ends up simply replacing one coverage gap with another while
+creating a significant backwards compatibility problem. While purls can cover
+all package-managed software, there is no practical proposal for them covering
+software that doesn’t get distributed via a package-manager. As many major
+vendors of significant interest to CVE users are not distributed via package
+managers (e.g., Microsoft, Adobe, Oracle, etc.), a purl-only solution would
+likely be unable to support much of the existing CVE corpus.
+
+A final option would be to do away with software identifier-based applicability
+matching entirely. Ultimately, software identifiers are an intermediate
+construct whose only real value is in their ability to serve as the connector
+between data sets (e.g., between CVE records and software inventories). CVE
+records almost always contain their applicability information within the prose
+description of the vulnerability. However, while LLMs and similar methods can
+make prose-based queries reasonably accurate, this requires fairly
+sophisticated capabilities attached to both data sets, one to extract an
+appropriate prose query and one to match it against a prose expression.
+(E.g., one capability to extract the appropriate prose queries from a software
+inventory, and then another capability to effect prose matching against the CVE
+description.) While there may be ways to lower the difficulty of such prose
+comparisons, no such mechanism has been publicly released. As a result,
+automated applicability matching in the absence of intermediate identifiers
+remains an unsolved problem.
+
+## Recommended Priority
+[recommended-priority]: #recommended-priority
+
+Medium
+
+## Unresolved Questions
+[unresolved-questions]: #unresolved-questions
+
+There are no remaining unresolved questions.
+
+## Future Possibilities
+[future-possibilities]: #future-possibilities
+
+More identifier types may be desirable to add in the future. Any question of
+what those types may be, or what they may look like within the CVE Record
+Format, is not addressed here.
+
+It may be desirable to eventually permit new identifiers to fulfill the
+"identifier-like" requirement on `product` objects, alongside `vendor` and
+`product` and `collectionURL` and `packageName`.
